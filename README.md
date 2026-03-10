@@ -2,7 +2,8 @@
 
 ## Project Description
 
-An advanced calculator application with various arithmetic operations, a command-line interface (REPL), and robust error handling for IS-601: Python for Web API Development
+An advanced calculator application with various arithmetic operations, a command-line interface (REPL), and robust error handling for IS-601: Python for Web API Development. This project is based off of the Instructor-given codebase: https://github.com/kaw393939/module5_is601.  
+Changes were made to the way that the [REPL interface](#supported-commands) is handled to allow for a more natural, mathematical flow and for continuation through the previous results with the addition of the keyword `ans`. 
 
 **Key features:**
 
@@ -23,30 +24,22 @@ An advanced calculator application with various arithmetic operations, a command
 **Prerequisites:** Python 3.11 or higher.
 
 1. Clone the repository:
-
    ```bash
    git clone <repository-url>
    cd IS-601-Midterm-Project
    ```
 
 2. Create a virtual environment:
-
    ```bash
    python3 -m venv .venv
    ```
 
 3. Activate the virtual environment:
-
    ```bash
-   # Linux / macOS
    source .venv/bin/activate
-
-   # Windows (PowerShell)
-   .venv\Scripts\Activate.ps1
    ```
 
 4. Install dependencies:
-
    ```bash
    pip install -r requirements.txt
    ```
@@ -102,13 +95,11 @@ All variables are optional. The application runs with defaults when `.env` is ab
 ## Usage Guide
 
 Start the calculator:
-
 ```bash
 .venv/bin/python main.py
 ```
 
 The REPL displays a prompt and accepts one command per line. The prompt shows the current result when one is available:
-
 ```
 > 1 + 2
 3
@@ -142,7 +133,6 @@ The REPL displays a prompt and accepts one command per line. The prompt shows th
 **Supported infix operators:** `+`, `-`, `*`, `/`, `%`, `//`
 
 **Using `ans` in keyword expressions:** Either operand may be replaced with `ans` to substitute the previous result:
-
 ```
 > power 2 8
 256
@@ -155,19 +145,16 @@ The REPL displays a prompt and accepts one command per line. The prompt shows th
 ## Testing Instructions
 
 ### Run the test suite
-
 ```bash
 .venv/bin/pytest
 ```
 
 ### Run with verbose output
-
 ```bash
 .venv/bin/pytest -v
 ```
 
 ### Run tests with coverage
-
 ```bash
 coverage run -m pytest -v
 coverage report
@@ -193,17 +180,17 @@ The project targets **100% test coverage**.
 
 | File | What it tests |
 |---|---|
-| `tests/test_operations.py` | Individual operation classes (`Addition`, `Division`, `Modulus`, etc.) |
-| `tests/test_calculation.py` | `CalculationFactory` and `Calculation` subclasses |
-| `tests/test_calculator.py` | `Calculator` class and the REPL (`calculator_repl`) |
-| `tests/test_validators.py` | `InputValidator` number parsing and `ans` keyword |
-| `tests/test_config.py` | `CalculatorConfig` environment variable handling |
-| `tests/test_exceptions.py` | Custom exception types |
-| `tests/test_history.py` | Observer classes and history management |
+| [`tests/test_operations.py`](tests/test_operations.py) | Individual operation classes (`Addition`, `Division`, `Modulus`, etc.) |
+| [`tests/test_calculation.py`](ests/test_calculation.py) | `CalculationFactory` and `Calculation` subclasses |
+| [`tests/test_calculator.py`](ests/test_calculator.py) | `Calculator` class and the REPL (`calculator_repl`) |
+| [`tests/test_validators.py`](tests/test_validators.py) | `InputValidator` number parsing and `ans` keyword |
+| [`tests/test_config.py`](tests/test_config.py) | `CalculatorConfig` environment variable handling |
+| [`tests/test_exceptions.py`](ests/test_exceptions.py) | Custom exception types |
+| [`tests/test_history.py`](tests/test_history.py) | Observer classes and history management |
 
 ## CI/CD Information
 
-The project uses **GitHub Actions** for continuous integration. The workflow is defined in `.github/workflows/tests.yml`.
+The project uses **GitHub Actions** for continuous integration. The workflow is defined in [`.github/workflows/tests.yml`](.github/workflows/tests.yml).
 
 **Trigger:** The pipeline runs automatically on every push or pull request targeting the `main` or `master` branch.
 
@@ -211,6 +198,6 @@ The project uses **GitHub Actions** for continuous integration. The workflow is 
 
 1. **Checkout** - clones the repository.
 2. **Set up Python 3.11** - provisions the runtime environment.
-3. **Install dependencies** - upgrades `pip` and installs all packages from `requirements.txt`.
+3. **Install dependencies** - upgrades `pip` and installs all packages from [`requirements.txt`](requirements.txt).
 4. **Run tests with coverage** - executes the full test suite via `coverage run -m pytest -v` and enforces **100% coverage** with `coverage report --fail-under=100`. The build fails if any test fails or coverage drops below 100%.
 5. **Create a release** - creates a GitHub release of the code when pushed to main
