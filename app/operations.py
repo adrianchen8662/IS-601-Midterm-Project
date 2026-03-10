@@ -125,7 +125,7 @@ class Percentage(Operation):
 
     def execute(self, a: Decimal, b: Decimal) -> Decimal:
         self.validate_operands(a, b)
-        return (a / b) * Decimal('100')
+        return Decimal(str(a / b)) * Decimal('100')
 
 
 class AbsoluteDifference(Operation):
