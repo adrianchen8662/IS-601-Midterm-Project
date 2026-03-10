@@ -30,7 +30,7 @@ Usage:
   percentage <a> <b>    (a / b) × 100, e.g. percentage 25 200
   absdiff <a> <b>       |a − b|, e.g. absdiff 9 4
 
-  For keyword operations either <a> or <b> may be 'ans' (lowercase only) to
+  For keyword operations either <a> or <b> may be 'ans' to
   substitute the previous result, e.g. power ans 2  or  root 256 ans
   = / ans               Show current result
   history / hist        Show calculation history
