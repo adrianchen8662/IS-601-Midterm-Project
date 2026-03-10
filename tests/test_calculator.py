@@ -5,7 +5,7 @@ from unittest.mock import patch
 from app.calculator import Calculator
 from app.calculator_config import CalculatorConfig
 from app.calculator_memento import CalculatorMemento
-from app.calculator_repl import calculator_repl
+from app.calculator_repl import calculator_repl, _build_help_text
 from app.exceptions import OperationError, ValidationError
 from app.history import LoggingObserver, HistoryObserver
 from app.operations import OperationFactory
@@ -206,7 +206,7 @@ def test_repl_help(mock_print, mock_input):
     printed = ' '.join(
         str(call.args[0]) for call in mock_print.call_args_list if call.args
     )
-    assert 'Supported infix operators' in printed
+    assert 'Infix operators' in printed
 
 
 @patch('builtins.input', side_effect=['1 + 2', 'e'])
@@ -452,3 +452,28 @@ def test_repl_unexpected_error(mock_op, mock_print, mock_input):
     calculator_repl()
     printed = ' '.join(str(c.args[0]) for c in mock_print.call_args_list if c.args)
     assert 'Unexpected error' in printed
+
+
+def test_build_help_text_contains_keyword_operations():
+    text = _build_help_text()
+    assert 'power' in text
+    assert 'root' in text
+    assert 'modulus' in text
+    assert 'intdiv' in text
+    assert 'percentage' in text
+    assert 'absdiff' in text
+
+
+def test_build_help_text_contains_infix_section():
+    text = _build_help_text()
+    assert 'Infix operators' in text
+    assert '<a> + <b>' in text
+    assert '<a> - <b>' in text
+    assert '<a> * <b>' in text
+    assert '<a> / <b>' in text
+
+
+def test_build_help_text_includes_descriptions_and_examples():
+    text = _build_help_text()
+    assert 'Raise a to the power b' in text
+    assert 'power 2 8' in text

@@ -16,6 +16,7 @@ from app.operations import (
     Percentage,
     AbsoluteDifference,
     OperationFactory,
+    register_op,
 )
 
 
@@ -251,3 +252,138 @@ class TestOperationFactory:
 
         with pytest.raises(TypeError, match="Operation class must inherit"):
             OperationFactory.register_operation("invalid", InvalidOperation)
+
+    def test_help_entries_contains_keyword_ops(self):
+        entries = OperationFactory.help_entries()
+        names = [e['name'] for e in entries]
+        assert 'power' in names
+        assert 'root' in names
+        assert 'modulus' in names
+        assert 'intdiv' in names
+        assert 'percentage' in names
+        assert 'absdiff' in names
+
+    def test_help_entries_excludes_infix_ops(self):
+        entries = OperationFactory.help_entries()
+        names = [e['name'] for e in entries]
+        for infix in ('add', 'subtract', 'multiply', 'divide'):
+            assert infix not in names
+
+    def test_help_entries_have_required_fields(self):
+        for entry in OperationFactory.help_entries():
+            assert 'name' in entry
+            assert 'description' in entry
+            assert 'example' in entry
+            assert entry['description'] != ''
+            assert entry['example'] != ''
+
+    def test_keyword_op_names_returns_keyword_ops(self):
+        kw = OperationFactory.keyword_op_names()
+        assert isinstance(kw, frozenset)
+        assert 'power' in kw
+        assert 'root' in kw
+        assert 'modulus' in kw
+        assert 'intdiv' in kw
+        assert 'percentage' in kw
+        assert 'absdiff' in kw
+
+    def test_keyword_op_names_excludes_infix_ops(self):
+        kw = OperationFactory.keyword_op_names()
+        for infix in ('add', 'subtract', 'multiply', 'divide'):
+            assert infix not in kw
+
+    def test_infix_entries_contains_infix_ops(self):
+        entries = OperationFactory.infix_entries()
+        symbols = [e['symbol'] for e in entries]
+        assert '+' in symbols
+        assert '-' in symbols
+        assert '*' in symbols
+        assert '/' in symbols
+        assert '%' in symbols
+        assert '//' in symbols
+
+    def test_infix_entries_have_required_fields(self):
+        for entry in OperationFactory.infix_entries():
+            assert 'symbol' in entry
+            assert 'description' in entry
+            assert 'example' in entry
+            assert entry['symbol'] != ''
+            assert entry['description'] != ''
+            assert entry['example'] != ''
+
+    def test_infix_entries_excludes_non_infix_ops(self):
+        entries = OperationFactory.infix_entries()
+        names_via_symbol = {e['symbol'] for e in entries}
+        # power, root, percentage, absdiff have no symbol
+        for op in OperationFactory._operations.values():
+            if not getattr(op, 'is_infix', False):
+                assert getattr(op, 'symbol', '') not in names_via_symbol or op.symbol == ''
+
+
+class TestRegisterOpDecorator:
+    def test_attaches_name(self):
+        assert Power.name == 'power'
+
+    def test_attaches_description(self):
+        assert Power.description == 'Raise a to the power b'
+
+    def test_attaches_example(self):
+        assert Power.example == 'power 2 8'
+
+    def test_is_keyword_true_for_keyword_ops(self):
+        for cls in (Power, Root, Modulus, IntegerDivision, Percentage, AbsoluteDifference):
+            assert cls.is_keyword is True
+
+    def test_is_keyword_false_for_infix_ops(self):
+        for cls in (Addition, Subtraction, Multiplication, Division):
+            assert cls.is_keyword is False
+
+    def test_is_infix_true_for_infix_ops(self):
+        for cls in (Addition, Subtraction, Multiplication, Division, Modulus, IntegerDivision):
+            assert cls.is_infix is True
+
+    def test_is_infix_false_for_keyword_only_ops(self):
+        for cls in (Power, Root, Percentage, AbsoluteDifference):
+            assert cls.is_infix is False
+
+    def test_attaches_symbol_for_infix_ops(self):
+        assert Addition.symbol == '+'
+        assert Subtraction.symbol == '-'
+        assert Multiplication.symbol == '*'
+        assert Division.symbol == '/'
+        assert Modulus.symbol == '%'
+        assert IntegerDivision.symbol == '//'
+
+    def test_modulus_and_intdiv_are_both_infix_and_keyword(self):
+        assert Modulus.is_infix is True
+        assert Modulus.is_keyword is True
+        assert IntegerDivision.is_infix is True
+        assert IntegerDivision.is_keyword is True
+
+    def test_decorator_registers_in_factory(self):
+        @register_op('test_dec_op')
+        class TestDecOp(Operation):
+            def execute(self, a: Decimal, b: Decimal) -> Decimal:
+                return a + b  # pragma: no cover
+
+        assert isinstance(OperationFactory.create_operation('test_dec_op'), TestDecOp)
+
+    def test_new_keyword_op_appears_in_help(self):
+        @register_op('test_help_op',
+                     description='Test description',
+                     example='test_help_op 1 2',
+                     is_keyword=True)
+        class TestHelpOp(Operation):
+            def execute(self, a: Decimal, b: Decimal) -> Decimal:
+                return a  # pragma: no cover
+
+        names = [e['name'] for e in OperationFactory.help_entries()]
+        assert 'test_help_op' in names
+
+    def test_new_keyword_op_appears_in_keyword_op_names(self):
+        @register_op('test_kw_op', is_keyword=True)
+        class TestKwOp(Operation):
+            def execute(self, a: Decimal, b: Decimal) -> Decimal:
+                return a  # pragma: no cover
+
+        assert 'test_kw_op' in OperationFactory.keyword_op_names()

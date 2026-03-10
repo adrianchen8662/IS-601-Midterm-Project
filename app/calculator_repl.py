@@ -17,35 +17,48 @@ OPERATOR_MAP = {
     '//': 'intdiv',
 }
 
-HELP_TEXT = """
-Calculator REPL
----------------
-Usage:
-  <num> <op> <num>      New expression, e.g. 1 + 2
-  <op> <num>            Continue from last result, e.g. + 5
-  power <a> <b>         Raise a to the power b, e.g. power 2 8
-  root <a> <b>          Compute the bth root of a, e.g. root 27 3
-  modulus <a> <b>       Remainder of a ÷ b, e.g. modulus 10 3
-  intdiv <a> <b>        Integer quotient of a ÷ b, e.g. intdiv 10 3
-  percentage <a> <b>    (a / b) × 100, e.g. percentage 25 200
-  absdiff <a> <b>       |a − b|, e.g. absdiff 9 4
 
-  For keyword operations either <a> or <b> may be 'ans' to
-  substitute the previous result, e.g. power ans 2  or  root 256 ans
-  = / ans               Show current result
-  history / hist        Show calculation history
-  undo / redo           Undo or redo the last calculation
-  save / load           Save or load history to/from file
-  c / clear             Clear result and history
-  h / help              Show this help
-  e / exit              Exit
-
-Supported infix operators: + - * /
-"""
+def _build_help_text() -> str:
+    """Build the help menu dynamically from all registered operations"""
+    lines = [
+        "\nCalculator REPL",
+        "---------------",
+        "Usage:",
+        "  <num> <op> <num>      New expression, e.g. 1 + 2",
+        "  <op> <num>            Continue from last result, e.g. + 5",
+        "",
+        "Infix operators:",
+    ]
+    for entry in OperationFactory.infix_entries():
+        usage = f"  <a> {entry['symbol']} <b>"
+        lines.append(f"{usage:<26}{entry['description']}, e.g. {entry['example']}")
+    lines += [
+        "",
+        "Keyword operations:",
+    ]
+    for entry in OperationFactory.help_entries():
+        usage = f"  {entry['name']} <a> <b>"
+        lines.append(f"{usage:<26}{entry['description']}, e.g. {entry['example']}")
+    lines += [
+        "",
+        "  For keyword operations either <a> or <b> may be 'ans' to",
+        "  substitute the previous result, e.g. power ans 2  or  root 256 ans",
+        "",
+        "Commands:",
+        "  = / ans               Show current result",
+        "  history / hist        Show calculation history",
+        "  undo / redo           Undo or redo the last calculation",
+        "  save / load           Save or load history to/from file",
+        "  c / clear             Clear result and history",
+        "  h / help              Show this help",
+        "  e / exit              Exit",
+        "",
+    ]
+    return "\n".join(lines)
 
 
 def _format_result(value: Decimal) -> str:
-    """Display as integer when there is no fractional part."""
+    """Display as integer when there is no fractional part"""
     if value == value.to_integral_value():
         return str(int(value))
     return str(value)
@@ -62,7 +75,7 @@ def _display_history(history) -> None:
 
 
 def calculator_repl() -> None:
-    """Expression-based REPL for the calculator."""
+    """Expression-based REPL for the calculator"""
     try:
         calc = Calculator()
         calc.add_observer(LoggingObserver())
@@ -73,7 +86,7 @@ def calculator_repl() -> None:
         raise
 
     result: Optional[Decimal] = None
-    print(HELP_TEXT)
+    print(_build_help_text())
 
     while True:
         prompt = f"[{_format_result(result)}] > " if result is not None else "> "
@@ -97,7 +110,7 @@ def calculator_repl() -> None:
             break
 
         if cmd in ('h', 'help'):
-            print(HELP_TEXT)
+            print(_build_help_text())
             continue
 
         if cmd in ('c', 'clear'):

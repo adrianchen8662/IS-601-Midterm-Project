@@ -4,6 +4,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any, Optional
 from app.calculator_config import CalculatorConfig
 from app.exceptions import ValidationError
+from app.operations import OperationFactory
 
 # Matches either a full expression "a op b" or a continuation "op b".
 # Group layout:
@@ -15,7 +16,7 @@ EXPRESSION_PATTERN = re.compile(
     r'(//|[+\-*/%])\s*([+-]?\s*\d+(?:\.\d+)?)'
 )
 
-KEYWORD_OPS = frozenset({'power', 'root', 'modulus', 'intdiv', 'percentage', 'absdiff'})
+KEYWORD_OPS = OperationFactory.keyword_op_names()
 
 @dataclass
 class InputValidator:
@@ -25,7 +26,7 @@ class InputValidator:
     def validate_number(value: Any, config: CalculatorConfig, previous_result: Optional[Decimal] = None) -> Decimal:
         """
         Convert input to Decimal. Accepts ``"ans"`` (lowercase) as a stand-in for
-        *previous_result*. Raises ValidationError for invalid input.
+        *previous_result*. Raises ValidationError for invalid input
         """
         try:
             if isinstance(value, str):
@@ -43,5 +44,5 @@ class InputValidator:
 
     @staticmethod
     def validate_expression(raw: str) -> Optional[re.Match]:
-        """Match raw input against the expression pattern. Returns None if unrecognized."""
+        """Match raw input against the expression pattern. Returns None if unrecognized"""
         return EXPRESSION_PATTERN.fullmatch(raw)
