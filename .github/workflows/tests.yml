@@ -28,3 +28,36 @@ jobs:
         coverage erase
         coverage run -m pytest -v
         coverage report --fail-under=100
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Get latest tag
+      id: get_tag
+      run: |
+        git fetch --tags
+        LATEST=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
+        if [ -z "$LATEST" ]; then
+          NEXT="v1.0.0"
+        else
+          MAJOR=$(echo $LATEST | cut -d. -f1 | tr -d v)
+          MINOR=$(echo $LATEST | cut -d. -f2)
+          PATCH=$(echo $LATEST | cut -d. -f3)
+          NEXT="v$MAJOR.$MINOR.$((PATCH + 1))"
+        fi
+        echo "tag=$NEXT" >> $GITHUB_OUTPUT
+
+    - name: Create release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.get_tag.outputs.tag }}
+        name: Release ${{ steps.get_tag.outputs.tag }}
+        generate_release_notes: true
