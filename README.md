@@ -182,6 +182,11 @@ data_file = /tmp/.coverage
 
 ```
 
+Python automatically creates bytecode cache files in the __pycache__ folder. However, these files cause unit tests like coverage and pytest to not update. To remove __pycache__ folders:
+```bash
+find . -type d -name "__pycache__" -exec rm -r {} +
+```
+
 The project targets **100% test coverage**. 
 
 ### Test structure
