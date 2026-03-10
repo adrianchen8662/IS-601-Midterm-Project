@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import datetime
 
 from app.operations import (
     Addition, Subtraction, Multiplication, Division,
@@ -11,6 +12,7 @@ class Calculation(ABC):
     def __init__(self, a: float, b: float) -> None:
         self.a: float = a
         self.b: float = b
+        self.timestamp: datetime.datetime = datetime.datetime.now()
 
     @abstractmethod
     def execute(self) -> float:
@@ -46,15 +48,22 @@ class Calculation(ABC):
             'operand1': self.a,
             'operand2': self.b,
             'result': self.result,
+            'timestamp': self.timestamp.isoformat(),
         }
 
     @classmethod
     def from_dict(cls, data: dict) -> 'Calculation':
-        return CalculationFactory.create_calculation(
+        calc = CalculationFactory.create_calculation(
             data['operation'],
             float(data['operand1']),
             float(data['operand2']),
         )
+        if data.get('timestamp'):
+            try:
+                calc.timestamp = datetime.datetime.fromisoformat(str(data['timestamp']))
+            except (ValueError, TypeError):
+                pass
+        return calc
 
 class CalculationFactory:
     """Creates Calculation instances by registered type string."""

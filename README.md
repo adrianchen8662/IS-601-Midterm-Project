@@ -88,7 +88,7 @@ CALCULATOR_MAX_INPUT_VALUE=1e999
 CALCULATOR_DEFAULT_ENCODING=utf-8
 ```
 
-All variables are optional. The application runs with defaults when `.env` is absent or empty.
+All variables are optional. The application runs with defaults when `.env` is absent or empty. An [example .env](.env.example) file is provided. 
 
 ---
 

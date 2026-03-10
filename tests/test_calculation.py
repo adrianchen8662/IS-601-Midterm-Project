@@ -95,12 +95,12 @@ def test_operand_properties():
 
 def test_to_dict():
     calc = CalculationFactory.create_calculation('add', 2.0, 3.0)
-    assert calc.to_dict() == {
-        'operation': 'add',
-        'operand1': 2.0,
-        'operand2': 3.0,
-        'result': 5.0,
-    }
+    d = calc.to_dict()
+    assert d['operation'] == 'add'
+    assert d['operand1'] == 2.0
+    assert d['operand2'] == 3.0
+    assert d['result'] == 5.0
+    assert 'timestamp' in d
 
 
 def test_from_dict():
