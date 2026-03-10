@@ -1,7 +1,3 @@
-########################
-# Calculator REPL       #
-########################
-
 import logging
 from decimal import Decimal
 from typing import Optional
@@ -33,13 +29,16 @@ Usage:
   intdiv <a> <b>        Integer quotient of a ÷ b, e.g. intdiv 10 3
   percentage <a> <b>    (a / b) × 100, e.g. percentage 25 200
   absdiff <a> <b>       |a − b|, e.g. absdiff 9 4
-  =                     Show current result
+
+  For keyword operations either <a> or <b> may be 'ans' (lowercase only) to
+  substitute the previous result, e.g. power ans 2  or  root 256 ans
+  = / ans               Show current result
   history / hist        Show calculation history
   undo / redo           Undo or redo the last calculation
   save / load           Save or load history to/from file
   c / clear             Clear result and history
   h / help              Show this help
-  q / quit              Exit
+  e / exit              Exit
 
 Supported infix operators: + - * /
 """
@@ -63,13 +62,7 @@ def _display_history(history) -> None:
 
 
 def calculator_repl() -> None:
-    """
-    Expression-based REPL for the calculator.
-
-    Accepts infix expressions (e.g. ``1 + 2``) or continuations (e.g. ``+ 5``)
-    as well as keyword commands for power, root, undo, redo, save, and load.
-    Input parsing is delegated to InputValidator.validate_expression().
-    """
+    """Expression-based REPL for the calculator."""
     try:
         calc = Calculator()
         calc.add_observer(LoggingObserver())
@@ -95,9 +88,7 @@ def calculator_repl() -> None:
 
         cmd = raw.lower()
 
-        # --- meta commands ---------------------------------------------------
-
-        if cmd in ('q', 'quit'):
+        if cmd in ('e', 'exit'):
             try:
                 calc.save_history()
             except Exception:
@@ -115,7 +106,7 @@ def calculator_repl() -> None:
             print("Cleared.")
             continue
 
-        if cmd == '=':
+        if cmd in ('=', 'ans'):
             if result is None:
                 print("No result yet.")
             else:
@@ -162,34 +153,28 @@ def calculator_repl() -> None:
                 print(f"Error loading history: {exc}")
             continue
 
-        # --- keyword operations: power / root --------------------------------
-
         parts = raw.split()
         if len(parts) == 3 and parts[0].lower() in KEYWORD_OPS:
             op_name = parts[0].lower()
             try:
                 calc.set_operation(OperationFactory.create_operation(op_name))
-                result = calc.perform_operation(parts[1], parts[2])
+                result = calc.perform_operation(parts[1], parts[2], previous_result=result)
                 print(_format_result(result))
             except (ValidationError, OperationError) as exc:
                 print(f"Error: {exc}")
             continue
 
-        # --- infix expressions: "a op b" or "op b" ---------------------------
-
         match = InputValidator.validate_expression(raw)
         if not match:
-            print("Error: Unrecognised input. Type 'h' for help.")
+            print("Error: Unrecognized input. Type 'h' for help.")
             continue
 
         try:
             if match.group(1) is not None:
-                # Full expression: a op b
                 a_str = match.group(1).replace(' ', '')
                 op_symbol = match.group(2)
                 b_str = match.group(3).replace(' ', '')
             else:
-                # Continuation: op b  (uses last result as a)
                 if result is None:
                     print("Error: No previous result. Start with a full expression, e.g. '1 + 2'.")
                     continue

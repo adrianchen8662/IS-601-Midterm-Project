@@ -1,5 +1,3 @@
-# calculator_calculations.py
-
 from abc import ABC, abstractmethod
 
 from app.operations import (
@@ -7,12 +5,8 @@ from app.operations import (
     Power, Root, Modulus, IntegerDivision, Percentage, AbsoluteDifference,
 )
 
-
 class Calculation(ABC):
-    """
-    Abstract Base Class defining the blueprint for all calculator calculations.
-    Subclasses implement execute() to perform a specific arithmetic operation.
-    """
+    """Abstract base for all calculator calculations."""
 
     def __init__(self, a: float, b: float) -> None:
         self.a: float = a
@@ -30,13 +24,8 @@ class Calculation(ABC):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(a={self.a}, b={self.b})"
 
-    # ------------------------------------------------------------------
-    # Observer-compatible interface
-    # ------------------------------------------------------------------
-
     @property
     def operation(self) -> str:
-        """Operation name derived from the class name (e.g., 'add', 'divide')."""
         return self.__class__.__name__.replace('Calculation', '').lower()
 
     @property
@@ -67,12 +56,8 @@ class Calculation(ABC):
             float(data['operand2']),
         )
 
-
 class CalculationFactory:
-    """
-    Factory class for creating Calculation instances by registered type string.
-    New calculation types are registered via the @register_calculation decorator.
-    """
+    """Creates Calculation instances by registered type string."""
 
     _calculations = {}
 
@@ -98,11 +83,6 @@ class CalculationFactory:
             )
         return calculation_class(a, b)
 
-
-# -----------------------------------------------------------------------------------
-# Concrete Calculation Classes
-# -----------------------------------------------------------------------------------
-
 @CalculationFactory.register_calculation('add')
 class AddCalculation(Calculation):
     """Addition of two numbers."""
@@ -118,14 +98,12 @@ class SubtractCalculation(Calculation):
     def execute(self) -> float:
         return float(Subtraction().execute(self.a, self.b))
 
-
 @CalculationFactory.register_calculation('multiply')
 class MultiplyCalculation(Calculation):
     """Multiplication of two numbers."""
 
     def execute(self) -> float:
         return float(Multiplication().execute(self.a, self.b))
-
 
 @CalculationFactory.register_calculation('divide')
 class DivideCalculation(Calculation):
@@ -134,14 +112,12 @@ class DivideCalculation(Calculation):
     def execute(self) -> float:
         return float(Division().execute(self.a, self.b))
 
-
 @CalculationFactory.register_calculation('power')
 class PowerCalculation(Calculation):
     """Raises a to the power of b. Requires non-negative exponent."""
 
     def execute(self) -> float:
         return float(Power().execute(self.a, self.b))
-
 
 @CalculationFactory.register_calculation('root')
 class RootCalculation(Calculation):
@@ -150,14 +126,12 @@ class RootCalculation(Calculation):
     def execute(self) -> float:
         return float(Root().execute(self.a, self.b))
 
-
 @CalculationFactory.register_calculation('modulus')
 class ModulusCalculation(Calculation):
     """Remainder of a divided by b. Raises ValidationError for zero divisor."""
 
     def execute(self) -> float:
         return float(Modulus().execute(self.a, self.b))
-
 
 @CalculationFactory.register_calculation('intdiv')
 class IntegerDivisionCalculation(Calculation):
@@ -166,14 +140,12 @@ class IntegerDivisionCalculation(Calculation):
     def execute(self) -> float:
         return float(IntegerDivision().execute(self.a, self.b))
 
-
 @CalculationFactory.register_calculation('percentage')
 class PercentageCalculation(Calculation):
     """Computes (a / b) * 100. Raises ValidationError for zero denominator."""
 
     def execute(self) -> float:
         return float(Percentage().execute(self.a, self.b))
-
 
 @CalculationFactory.register_calculation('absdiff')
 class AbsoluteDifferenceCalculation(Calculation):

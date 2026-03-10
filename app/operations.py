@@ -1,7 +1,3 @@
-########################
-# Operation Classes    #
-########################
-
 from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Dict
@@ -10,38 +6,16 @@ from app.exceptions import ValidationError
 
 
 class Operation(ABC):
-    """
-    Abstract base class for calculator operations.
-
-    Defines the interface for all arithmetic operations. Each operation must
-    implement the execute method and can optionally override operand validation.
-    """
+    """Abstract base for all arithmetic operations."""
 
     name: str = ''
 
     @abstractmethod
     def execute(self, a: Decimal, b: Decimal) -> Decimal:
-        """
-        Execute the operation.
-
-        Args:
-            a (Decimal): First operand.
-            b (Decimal): Second operand.
-
-        Returns:
-            Decimal: Result of the operation.
-        """
         pass  # pragma: no cover
 
     def validate_operands(self, a: Decimal, b: Decimal) -> None:
-        """
-        Validate operands before execution.
-
-        Can be overridden by subclasses to enforce operation-specific rules.
-
-        Raises:
-            ValidationError: If operands are invalid for this operation.
-        """
+        """Override in subclasses to enforce operation-specific rules."""
         pass
 
     def __str__(self) -> str:
@@ -49,8 +23,6 @@ class Operation(ABC):
 
 
 class Addition(Operation):
-    """Addition operation implementation."""
-
     name = 'add'
 
     def execute(self, a: Decimal, b: Decimal) -> Decimal:
@@ -59,8 +31,6 @@ class Addition(Operation):
 
 
 class Subtraction(Operation):
-    """Subtraction operation implementation."""
-
     name = 'subtract'
 
     def execute(self, a: Decimal, b: Decimal) -> Decimal:
@@ -69,8 +39,6 @@ class Subtraction(Operation):
 
 
 class Multiplication(Operation):
-    """Multiplication operation implementation."""
-
     name = 'multiply'
 
     def execute(self, a: Decimal, b: Decimal) -> Decimal:
@@ -79,8 +47,6 @@ class Multiplication(Operation):
 
 
 class Division(Operation):
-    """Division operation implementation."""
-
     name = 'divide'
 
     def validate_operands(self, a: Decimal, b: Decimal) -> None:
@@ -94,8 +60,6 @@ class Division(Operation):
 
 
 class Power(Operation):
-    """Exponentiation operation implementation."""
-
     name = 'power'
 
     def validate_operands(self, a: Decimal, b: Decimal) -> None:
@@ -109,8 +73,6 @@ class Power(Operation):
 
 
 class Root(Operation):
-    """Root (nth root) operation implementation."""
-
     name = 'root'
 
     def validate_operands(self, a: Decimal, b: Decimal) -> None:
@@ -126,8 +88,6 @@ class Root(Operation):
 
 
 class Modulus(Operation):
-    """Modulus (remainder) operation implementation."""
-
     name = 'modulus'
 
     def validate_operands(self, a: Decimal, b: Decimal) -> None:
@@ -141,8 +101,6 @@ class Modulus(Operation):
 
 
 class IntegerDivision(Operation):
-    """Integer division operation implementation."""
-
     name = 'intdiv'
 
     def validate_operands(self, a: Decimal, b: Decimal) -> None:
@@ -156,7 +114,7 @@ class IntegerDivision(Operation):
 
 
 class Percentage(Operation):
-    """Percentage calculation: (a / b) * 100."""
+    """(a / b) * 100."""
 
     name = 'percentage'
 
@@ -179,14 +137,9 @@ class AbsoluteDifference(Operation):
         self.validate_operands(a, b)
         return abs(a - b)
 
-class OperationFactory:
-    """
-    Factory class for creating operation instances.
 
-    Implements the Factory pattern by providing a method to instantiate
-    different operation classes based on a given operation type. This promotes
-    scalability and decouples the creation logic from the Calculator class.
-    """
+class OperationFactory:
+    """Creates Operation instances by name."""
 
     _operations: Dict[str, type] = {
         'add': Addition,
@@ -203,34 +156,14 @@ class OperationFactory:
 
     @classmethod
     def register_operation(cls, name: str, operation_class: type) -> None:
-        """
-        Register a new operation type.
-
-        Args:
-            name (str): Operation identifier (e.g., 'modulus').
-            operation_class (type): The class implementing the new operation.
-
-        Raises:
-            TypeError: If operation_class does not inherit from Operation.
-        """
+        """Register a new operation type. Raises TypeError if not an Operation subclass."""
         if not issubclass(operation_class, Operation):
             raise TypeError("Operation class must inherit from Operation")
         cls._operations[name.lower()] = operation_class
 
     @classmethod
     def create_operation(cls, operation_type: str) -> Operation:
-        """
-        Create an operation instance based on the operation type.
-
-        Args:
-            operation_type (str): The type of operation to create (e.g., 'add').
-
-        Returns:
-            Operation: An instance of the specified operation class.
-
-        Raises:
-            ValueError: If the operation type is unknown.
-        """
+        """Return an Operation instance for the given type name. Raises ValueError if unknown."""
         operation_class = cls._operations.get(operation_type.lower())
         if not operation_class:
             raise ValueError(f"Unknown operation: {operation_type}")

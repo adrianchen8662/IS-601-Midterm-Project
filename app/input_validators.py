@@ -1,7 +1,3 @@
-########################
-# Input Validation     #
-########################
-
 import re
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
@@ -26,23 +22,18 @@ class InputValidator:
     """Validates and sanitizes calculator inputs."""
 
     @staticmethod
-    def validate_number(value: Any, config: CalculatorConfig) -> Decimal:
+    def validate_number(value: Any, config: CalculatorConfig, previous_result: Optional[Decimal] = None) -> Decimal:
         """
-        Validate and convert input to Decimal.
-
-        Args:
-            value: Input value to validate
-            config: Calculator configuration
-
-        Returns:
-            Decimal: Validated and converted number
-
-        Raises:
-            ValidationError: If input is invalid
+        Convert input to Decimal. Accepts ``"ans"`` (lowercase) as a stand-in for
+        *previous_result*. Raises ValidationError for invalid input.
         """
         try:
             if isinstance(value, str):
                 value = value.strip()
+                if value == 'ans':
+                    if previous_result is None:
+                        raise ValidationError("No previous result available for 'ans'")
+                    return previous_result
             number = Decimal(str(value))
             if abs(number) > config.max_input_value:
                 raise ValidationError(f"Value exceeds maximum allowed: {config.max_input_value}")
@@ -52,14 +43,5 @@ class InputValidator:
 
     @staticmethod
     def validate_expression(raw: str) -> Optional[re.Match]:
-        """
-        Validate a raw expression string against the calculator input pattern.
-        Accepts either a full expression ("a op b") or a continuation ("op b").
-
-        Args:
-            raw: The raw input string to validate.
-
-        Returns:
-            re.Match: The match object if valid, or None if the input is unrecognized.
-        """
+        """Match raw input against the expression pattern. Returns None if unrecognized."""
         return EXPRESSION_PATTERN.fullmatch(raw)
