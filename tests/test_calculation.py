@@ -118,6 +118,15 @@ def test_from_dict_invalid_operand():
         Calculation.from_dict(data)
 
 
+def test_from_dict_invalid_timestamp():
+    import datetime
+    data = {'operation': 'add', 'operand1': 2.0, 'operand2': 3.0, 'timestamp': 'not-a-date'}
+    calc = Calculation.from_dict(data)
+    assert calc.operation == 'add'
+    # timestamp falls back to the creation time set in __init__
+    assert isinstance(calc.timestamp, datetime.datetime)
+
+
 def test_str_representation():
     calc = CalculationFactory.create_calculation('add', 2.0, 3.0)
     s = str(calc)

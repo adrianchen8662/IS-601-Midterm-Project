@@ -269,6 +269,20 @@ def test_load_history_skips_corrupt_rows(calculator):
     assert calculator.show_history()[0].operation == 'add'
 
 
+def test_load_history_invalid_timestamp(calculator):
+    """Rows with a malformed timestamp are still loaded; timestamp falls back to creation time."""
+    import datetime
+    calculator.config.history_dir.mkdir(parents=True, exist_ok=True)
+    calculator.config.history_file.write_text(
+        "operation,operand1,operand2,result,timestamp\n"
+        "add,2,3,5,not-a-date\n",
+        encoding=calculator.config.default_encoding,
+    )
+    calculator.load_history()
+    assert len(calculator.show_history()) == 1
+    assert isinstance(calculator.show_history()[0].timestamp, datetime.datetime)
+
+
 def test_memento_to_dict(calculator):
     calculator.set_operation(OperationFactory.create_operation('add'))
     calculator.perform_operation('2', '3')
