@@ -5,3 +5,4 @@ __pycache__/
 .coveragerc
 history/
 test_history/
+test_logs/

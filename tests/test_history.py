@@ -12,12 +12,13 @@ calculation_mock.operand2 = 3
 calculation_mock.result = 8
 
 
-@patch('logging.info')
-def test_logging_observer_logs_calculation(logging_info_mock):
+@patch('app.logger.Logger.info')
+def test_logging_observer_logs_calculation(logger_info_mock):
     observer = LoggingObserver()
     observer.update(calculation_mock)
-    logging_info_mock.assert_called_once_with(
-        "Calculation performed: addition (5, 3) = 8"
+    logger_info_mock.assert_called_once_with(
+        "Calculation performed: %s (%s, %s) = %s",
+        "addition", 5, 3, 8,
     )
 
 
@@ -36,14 +37,14 @@ def test_autosave_observer_triggers_save():
     calculator_mock.save_history.assert_called_once()
 
 
-@patch('logging.info')
-def test_autosave_observer_logs_autosave(logging_info_mock):
+@patch('app.logger.Logger.info')
+def test_autosave_observer_logs_autosave(logger_info_mock):
     calculator_mock = Mock(spec=Calculator)
     calculator_mock.config = Mock(spec=CalculatorConfig)
     calculator_mock.config.auto_save = True
     observer = AutoSaveObserver(calculator_mock)
     observer.update(calculation_mock)
-    logging_info_mock.assert_called_once_with("History auto-saved")
+    logger_info_mock.assert_called_once_with("History auto-saved")
 
 
 def test_autosave_observer_does_not_trigger_save_when_disabled():

@@ -157,7 +157,7 @@ class Modulus(Operation):
         return a % b
 
 
-@register_op('intdiv',
+@register_op('intdiv', # In the Instructions, this is called "int_divide"
              symbol='//',
              description='Integer quotient of a // b',
              example='intdiv 10 3',
@@ -175,7 +175,7 @@ class IntegerDivision(Operation):
         return Decimal(int(a // b))
 
 
-@register_op('percentage',
+@register_op('percentage', # In the Instructions, this is called "percent"
              description='(a / b) x 100',
              example='percentage 25 200',
              is_keyword=True)
@@ -192,7 +192,7 @@ class Percentage(Operation):
         return Decimal(str(a / b)) * Decimal('100')
 
 
-@register_op('absdiff',
+@register_op('absdiff', # In the Instructions, this is called "abs_diff"
              description='|a - b|',
              example='absdiff 9 4',
              is_keyword=True)

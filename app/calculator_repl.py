@@ -1,10 +1,10 @@
-import logging
 from decimal import Decimal
 from typing import Optional
 
 from app.calculator import Calculator
 from app.exceptions import OperationError, ValidationError
 from app.history import AutoSaveObserver, LoggingObserver
+from app.logger import Logger
 from app.input_validators import InputValidator, KEYWORD_OPS
 from app.operations import OperationFactory
 
@@ -82,7 +82,7 @@ def calculator_repl() -> None:
         calc.add_observer(AutoSaveObserver(calc))
     except Exception as exc:
         print(f"Fatal error: {exc}")
-        logging.error("Fatal error initialising calculator: %s", exc)
+        Logger.error("Fatal error initialising calculator: %s", exc)
         raise
 
     result: Optional[Decimal] = None

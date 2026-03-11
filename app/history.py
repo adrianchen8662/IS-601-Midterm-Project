@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-import logging
 from typing import Any
 from app.calculation import Calculation
+from app.logger import Logger
 
 
 class HistoryObserver(ABC):
@@ -18,10 +18,12 @@ class LoggingObserver(HistoryObserver):
     def update(self, calculation: Calculation) -> None:
         if calculation is None:
             raise AttributeError("Calculation cannot be None")
-        logging.info(
-            f"Calculation performed: {calculation.operation} "
-            f"({calculation.operand1}, {calculation.operand2}) = "
-            f"{calculation.result}"
+        Logger.info(
+            "Calculation performed: %s (%s, %s) = %s",
+            calculation.operation,
+            calculation.operand1,
+            calculation.operand2,
+            calculation.result,
         )
 
 
@@ -39,4 +41,4 @@ class AutoSaveObserver(HistoryObserver):
             raise AttributeError("Calculation cannot be None")
         if self.calculator.config.auto_save:
             self.calculator.save_history()
-            logging.info("History auto-saved")
+            Logger.info("History auto-saved")

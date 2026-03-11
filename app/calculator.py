@@ -1,5 +1,4 @@
 import datetime
-import logging
 from decimal import Decimal
 from typing import List, Optional
 
@@ -10,6 +9,7 @@ from app.calculator_config import CalculatorConfig
 from app.calculator_memento import CalculatorMemento
 from app.exceptions import OperationError, ValidationError
 from app.history import HistoryObserver
+from app.logger import Logger
 from app.input_validators import InputValidator
 from app.operations import Operation
 
@@ -24,6 +24,7 @@ class Calculator:
     def __init__(self, config: Optional[CalculatorConfig] = None) -> None:
         self.config: CalculatorConfig = config or CalculatorConfig()
         self.config.validate()
+        Logger.setup(self.config.log_file, self.config.default_encoding)
 
         self._history: List[Calculation] = []
         self._observers: List[HistoryObserver] = []
@@ -120,7 +121,7 @@ class Calculator:
         ]
         df = pd.DataFrame(records, columns=['operation', 'operand1', 'operand2', 'result', 'timestamp'])
         df.to_csv(self.config.history_file, index=False, encoding=self.config.default_encoding)
-        logging.info("History saved to %s", self.config.history_file)
+        Logger.info("History saved to %s", self.config.history_file)
 
     def load_history(self) -> None:
         """Load calculation history from CSV (path from config). Silently skips unparseable rows."""
@@ -143,6 +144,6 @@ class Calculator:
                         pass
                 self._history.append(calc)
             except (ValueError, KeyError) as exc:
-                logging.warning("Skipping invalid history entry: %s", exc)
+                Logger.warning("Skipping invalid history entry: %s", exc)
 
-        logging.info("History loaded from %s", self.config.history_file)
+        Logger.info("History loaded from %s", self.config.history_file)
